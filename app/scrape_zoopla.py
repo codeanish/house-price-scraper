@@ -1,9 +1,6 @@
 import requests
 import re
 from bs4 import BeautifulSoup
-from configparser import ConfigParser
-import ast
-from slack_notification import send_slack_notification
 
 def get_property_page(url):
     page = requests.get(url)
@@ -31,18 +28,4 @@ def get_address_from_page(page):
 def get_value_from_price_estimate_string(string):
     intermediate_string = re.sub('[k]', '000', string)
     return re.sub('[^0-9]', '', intermediate_string)    
-
-
-if __name__ == "__main__":
-    config = ConfigParser()
-    config.read('config.ini')
-    urls = ast.literal_eval(config.get('main', 'urls'))
-    webhook_url = config.get('main', 'slack_webhook_url')
-    for url in urls:
-        property_page = get_property_page(url)
-        price_estimate = get_price_estimate_from_page(property_page)
-        address = get_address_from_page(property_page)
-        entry = f"Address: {address} - Price Estimate: £{price_estimate}"
-        send_slack_notification(webhook_url, entry)
-        print(entry)
     
